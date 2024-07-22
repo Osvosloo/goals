@@ -1,5 +1,6 @@
 import { useState } from "react";
 import GoalItem from "./GoalItem";
+import { v4 as uuidv4 } from "uuid";
 
 const GoalList = ({ goals, addGoal, removeGoal, toggleComplete }) => {
   const [newGoal, setNewGoal] = useState("");
@@ -8,7 +9,13 @@ const GoalList = ({ goals, addGoal, removeGoal, toggleComplete }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (newGoal.trim() && newScore >= 0) {
-      addGoal({ text: newGoal, score: newScore, completed: false });
+      const goal = {
+        id: uuidv4(),
+        text: newGoal,
+        score: newScore,
+        completed: false,
+      };
+      addGoal(goal);
       setNewGoal("");
       setNewScore(0);
     }
@@ -33,12 +40,12 @@ const GoalList = ({ goals, addGoal, removeGoal, toggleComplete }) => {
         <button type="submit">Add Goal</button>
       </form>
       <ul>
-        {goals.map((goal, index) => (
+        {goals.map((goal) => (
           <GoalItem
-            key={index}
+            key={goal.id}
             goal={goal}
-            removeGoal={() => removeGoal(index)}
-            toggleComplete={() => toggleComplete(index)}
+            removeGoal={() => removeGoal(goal.id)}
+            toggleComplete={() => toggleComplete(goal.id)}
           />
         ))}
       </ul>
