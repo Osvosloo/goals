@@ -1,0 +1,99 @@
+/* GoalItem.css */
+
+.goal-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background-color: #fff;
+}
+
+.complete-btn {
+  background: none;
+  border: none;
+  color: #2ea44f; /* Green color */
+  font-size: 24px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.goal-content {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  justify-content: space-between; /* Ensure space between text and score */
+}
+
+.goal-text {
+  display: flex;
+  align-items: center;
+}
+
+.goal-description {
+  font-size: 16px;
+}
+
+.goal-description.completed {
+  text-decoration: line-through;
+  color: #aaa;
+}
+
+.goal-score {
+  margin-left: 3px;
+}
+
+.score-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #2ea44f; /* Green color */
+  color: #fff;
+  font-size: 16px;
+}
+
+.goal-actions {
+  display: flex;
+  align-items: center;
+}
+
+.edit-btn,
+.remove-btn {
+  background: none;
+  border: none;
+  margin-left: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+
+.edit-btn:hover svg,
+.remove-btn:hover svg {
+  opacity: 0.7; /* Adjust opacity as needed */
+}
+
+.edit-btn svg {
+  color: #007bff; /* Blue color */
+}
+
+.remove-btn svg {
+  color: #dc3545; /* Red color */
+}
+
+.complete-btn,
+.edit-btn,
+.remove-btn {
+  background: none !important;
+  border: none;
+  /* margin-right: 5px; */
+  cursor: pointer;
+  font-size: 16px;
+  transition: opacity 0.3s ease;
+}

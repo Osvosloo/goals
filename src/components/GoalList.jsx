@@ -1,24 +1,40 @@
 import { useState } from "react";
 import GoalItem from "./GoalItem";
-import { v4 as uuidv4 } from "uuid";
 
-const GoalList = ({ goals, addGoal, removeGoal, toggleComplete }) => {
+const GoalList = ({ goals, setGoals, removeGoal, toggleComplete }) => {
   const [newGoal, setNewGoal] = useState("");
   const [newScore, setNewScore] = useState(0);
+  const [editIndex, setEditIndex] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (newGoal.trim() && newScore >= 0) {
-      const goal = {
-        id: uuidv4(),
-        text: newGoal,
-        score: newScore,
-        completed: false,
-      };
-      addGoal(goal);
+      if (editIndex !== null) {
+        // Update existing goal
+        const updatedGoals = goals.map((goal, index) =>
+          index === editIndex
+            ? { ...goal, text: newGoal, score: newScore }
+            : goal
+        );
+        setGoals(updatedGoals); // Update state directly
+        setEditIndex(null);
+      } else {
+        // Add new goal
+        setGoals([
+          ...goals,
+          { text: newGoal, score: newScore, completed: false },
+        ]);
+      }
       setNewGoal("");
       setNewScore(0);
     }
+  };
+
+  const handleEdit = (index) => {
+    const goalToEdit = goals[index];
+    setNewGoal(goalToEdit.text);
+    setNewScore(goalToEdit.score);
+    setEditIndex(index);
   };
 
   return (
@@ -37,15 +53,18 @@ const GoalList = ({ goals, addGoal, removeGoal, toggleComplete }) => {
           placeholder="Score"
           min="0"
         />
-        <button type="submit">Add Goal</button>
+        <button type="submit">
+          {editIndex !== null ? "Update Goal" : "Add Goal"}
+        </button>
       </form>
       <ul>
-        {goals.map((goal) => (
+        {goals.map((goal, index) => (
           <GoalItem
-            key={goal.id}
+            key={index}
             goal={goal}
-            removeGoal={() => removeGoal(goal.id)}
-            toggleComplete={() => toggleComplete(goal.id)}
+            removeGoal={() => removeGoal(index)}
+            toggleComplete={() => toggleComplete(index)}
+            editGoal={() => handleEdit(index)}
           />
         ))}
       </ul>

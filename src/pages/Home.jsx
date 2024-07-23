@@ -1,78 +1,54 @@
 import { useState, useEffect } from "react";
 import GoalList from "../components/GoalList";
 import ProgressBar from "../components/ProgressBar";
-import { database } from "../firebase";
-import { ref, onValue, set } from "firebase/database";
+import { database } from "../firebase"; // Adjust path as needed
+import { ref, set, update, remove, onValue } from "firebase/database";
 
 const Home = () => {
   const [goals, setGoals] = useState([]);
 
-  // Load goals from Firebase on component mount
   useEffect(() => {
-    const loadGoalsFromFirebase = () => {
-      const goalsRef = ref(database, "goals");
-      onValue(
-        goalsRef,
-        (snapshot) => {
-          const data = snapshot.val();
-          console.log("Loaded data:", data); // Debug log
-          if (data) {
-            const loadedGoals = Object.entries(data).map(([id, goal]) => ({
-              id,
-              ...goal,
-            }));
-            setGoals(loadedGoals);
-          } else {
-            setGoals([]);
-          }
-        },
-        (error) => {
-          console.error("Error loading goals:", error);
-        }
-      );
-    };
+    const today = new Date().toLocaleDateString();
+    localStorage.setItem("date", today);
 
-    loadGoalsFromFirebase();
+    const goalsRef = ref(database, "goals");
+    onValue(goalsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setGoals(Object.values(data));
+      } else {
+        setGoals([]);
+      }
+    });
   }, []);
 
-  // Save goals to Firebase when goals state changes
   useEffect(() => {
-    const saveGoalsToFirebase = () => {
-      const goalsRef = ref(database, "goals");
-      const goalsObject = goals.reduce((acc, goal) => {
-        acc[goal.id] = goal;
-        return acc;
-      }, {});
-
-      console.log("Saving goals to Firebase:", goalsObject); // Debug log
-
-      set(goalsRef, goalsObject)
-        .then(() => console.log("Goals saved successfully"))
-        .catch((error) => console.error("Error saving goals:", error));
-    };
-
-    if (goals.length > 0) {
-      saveGoalsToFirebase();
-    }
+    const goalsRef = ref(database, "goals");
+    const goalsData = goals.reduce((acc, goal, index) => {
+      acc[index] = goal;
+      return acc;
+    }, {});
+    update(goalsRef, goalsData);
   }, [goals]);
 
   const addGoal = (goal) => {
-    setGoals((prevGoals) => [
-      ...prevGoals,
-      { ...goal, id: Date.now().toString() }, // Ensure each goal has a unique id
-    ]);
+    setGoals([...goals, goal]);
   };
 
-  const removeGoal = (id) => {
-    setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== id));
+  const removeGoal = (index) => {
+    const newGoals = goals.filter((_, i) => i !== index);
+    setGoals(newGoals);
+
+    // Remove the goal from Firebase
+    const goalsRef = ref(database, `goals/${index}`);
+    remove(goalsRef);
   };
 
-  const toggleComplete = (id) => {
-    setGoals((prevGoals) =>
-      prevGoals.map((goal) =>
-        goal.id === id ? { ...goal, completed: !goal.completed } : goal
-      )
+  const toggleComplete = (index) => {
+    const newGoals = goals.map((goal, i) =>
+      i === index ? { ...goal, completed: !goal.completed } : goal
     );
+    setGoals(newGoals);
   };
 
   const totalScore = goals.reduce(
@@ -87,7 +63,7 @@ const Home = () => {
       <ProgressBar current={totalScore} max={maxScore} />
       <GoalList
         goals={goals}
-        addGoal={addGoal}
+        setGoals={setGoals}
         removeGoal={removeGoal}
         toggleComplete={toggleComplete}
       />
